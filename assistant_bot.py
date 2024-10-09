@@ -4,6 +4,70 @@ def parse_input(user_input):
     return cmd, *args
 
 
+def input_error(func):
+    def validate(*args):
+        params = args[0]
+        contacts = args[1]
+        func_name = func.__name__
+
+        if func_name == "cmd_add_contact":
+            if len(params) == 0:
+                msg = "Please enter command in the format: add [username] [phone]"
+                complete = False
+                return (msg, complete)
+
+            if len(params) == 1:
+                msg = "Please enter a phone."
+                complete = False
+                return (msg, complete)
+
+            name, phone = params
+            if contacts.get(name):
+                msg = "Contact already exists."
+                complete = False
+                return (msg, complete)
+
+        if func_name == "cmd_change_contact":
+            if len(params) == 0:
+                msg = "Please enter command in the format: change [username] [phone]"
+                complete = False
+                return (msg, complete)
+
+            if len(params) == 1:
+                msg = "Please enter a phone."
+                complete = False
+                return (msg, complete)
+
+            name, phone = params
+            if not contacts.get(name):
+                msg = "Contact not exist"
+                complete = False
+                return (msg, complete)
+
+        if func_name == "cmd_phone":
+            if len(params) == 0:
+                msg = "Please enter command in the format: phone [username]"
+                complete = False
+                return (msg, complete)
+
+            name = params[0]
+            phone = contacts.get(name)
+            if not phone:
+                msg = "Contact not exist."
+                complete = False
+                return (msg, complete)
+
+        if func_name == "cmd_all":
+            if len(contacts) == 0:
+                msg = "Contacts list is empty"
+                complete = False
+                return (msg, complete)
+
+        return func(*args)
+
+    return validate
+
+
 def cmd_hello(*args):
     msg = "How can I help you?"
     complete = False
@@ -16,78 +80,36 @@ def cmd_exit(*args):
     return (msg, complete)
 
 
+@input_error
 def cmd_add_contact(args, contacts):
-    if len(args) == 0:
-        msg = "Please enter command in the format: add [username] [phone]"
-        complete = False
-        return (msg, complete)
-
-    if len(args) == 1:
-        msg = "Please enter a phone."
-        complete = False
-        return (msg, complete)
-
     name, phone = args
-    if contacts.get(name):
-        msg = "Contact already exists."
-        complete = False
-        return (msg, complete)
-
     contacts[name] = phone
     msg = "Contact added."
     complete = False
     return (msg, complete)
 
 
+@input_error
 def cmd_change_contact(args, contacts):
-    if len(args) == 0:
-        msg = "Please enter command in the format: change [username] [phone]"
-        complete = False
-        return (msg, complete)
-
-    if len(args) == 1:
-        msg = "Please enter a phone."
-        complete = False
-        return (msg, complete)
-
     name, phone = args
-    if contacts.get(name):
-        contacts[name] = phone
-    else:
-        msg = "Contact not exist"
-        complete = False
-        return (msg, complete)
-
+    contacts[name] = phone
     msg = "Contact changed."
     complete = False
     return (msg, complete)
 
 
+@input_error
 def cmd_phone(args, contacts):
-    if len(args) == 0:
-        msg = "Please enter command in the format: phone [username]"
-        complete = False
-        return (msg, complete)
-
     name = args[0]
     phone = contacts.get(name)
-    if phone:
-        msg = phone
-        complete = False
-        return (msg, complete)
-    else:
-        msg = "Contact not exist."
-        complete = False
-        return (msg, complete)
+    msg = phone
+    complete = False
+    return (msg, complete)
 
 
+@input_error
 def cmd_all(args, contacts):
-    if len(contacts):
-        msg = contacts
-        complete = False
-        return (msg, complete)
-
-    msg = "Contacts list is empty"
+    msg = contacts
     complete = False
     return (msg, complete)
 
